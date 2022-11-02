@@ -8,14 +8,15 @@
 
 ### Introduction
 
+The goal of this project is to gain experience with solving a distributed computational problem using cloud computing technologies by designing and implementing a RESTful service and a lambda function that are accessed from clients using gRPC.
 
 Video Link : 
 
-The video explains deployment of hadoop application in AWS EMR Cluster
+The video explains how different cloud components are used to solve the log files data analyzing problem and deployed a restful API service in AWS.I also explained the steps and different components involved in deploying this solution in AWS.
 
 ### Environment
 
-```
+```   
 OS: Ubuntu
 
 IDE: IntelliJ IDEA 2022.2.3 (Ultimate Edition)
@@ -24,188 +25,109 @@ SCALA Version: 3.2.0
 
 SBT Version: 1.7.1
 
-Hadoop Version: 3.3.4
+JDK Version: 11.0.16
+
+Python Version: 3.9
 ```
-
-### Running the test file
-
-Test Files can be found under the directory /src/test/scala/LogAnalyzerTests
-I have used mockito and scalatestplus libraries and mocked the context to test the mapper functions
-
-````
-sbt clean compile test
-````
+Note: Python is used for deploying Lambda function in AWS.
 
 ### Running the project
 
-1) Clone this repository
 
+1) Clone this repository and cd into the repository
 ```
-repo https://github.com/SeshaPhaniVV/LogAnalyzer
-```
-```
-cd LogFileAnalyzer
+git clone https://github.com/SeshaPhaniVV/LogAnalyzer-grpc-rest-api
+cd LogAnalyzer-grpc-rest-api
 ```
 
-2) Open the project in intelliJ
+2) Download and Install and the dependencies i. Java Development Kit
+   1. Java Development Kit
+   2. SBT 
 
-```
-set up scala code formatter with the configuration file set as `.scalafmt.conf` 
-https://www.jetbrains.com/help/idea/work-with-scala-formatter.html
-```
-
-3) Generate jar file by running the following command in the terminal from project root folder. Jar file is created in target/scala-3.2.0/LogFileGenerator-assembly-0.1.jar
-
+3) Compile the scala code and install all the required packages using below command
 ````
-sbt clean compile assembly
+sbt clean compile
 ````
 
-4) Running project via SBT Run. Please delete the `output` folder in project root before you run the below command.
+4) After compilation please execute the following command to start the execution of project.
 
 ```
 sbt run
 ```
+5) Once the `run` command is executed in the terminal, below output should be visible. 
+![](/home/vvs/projects/LogAnalyzer-grpc-rest-api/images/Image_1.png)
 
-### Running the jobs
-1) Setup hadoop for ubuntu following the guide https://hadoop.apache.org/docs/stable/hadoop-project-dist/hadoop-common/SingleCluster.html
+5) The project contains two API implementations.
+   1. gRPC:
+   To run the gRPC implementation, first choose option to execute LogAnalyzerGrpcServer to start the server.
+   Open another terminal, run the same command `sbt run` and choose option to start the execution LogAnalyzerGrpcClient to start the execution of client.
+   2. RestApi:
+   HTTP Get request and HTTP Post request API Functionalities are implemented. 
+   To run the Get Request implementation, please choose option to execute AnalyzeGetRestObj
+   To run the Post Request implementation, please choose option to execute AnalyzePostRestObj
 
-2) Once hadoop is set up go to the installation directory and start the hadoop processes.
+### Running the test file
 
-```
-cd /usr/local/hadoop/sbin
-./start-all.sh
-./mr-jobhistory-daemon.sh start historyserver
-```
-
-3) Once both dfs, yarn and job history processes are started - check them using `jps` command. Output should contain below info
-````
-DataNode
-NameNode
-SecondaryNameNode
-JobHistoryServer
-NodeManager
-ResourceManager
-````
-
-4) Once we started the hadoop processes move the input files to hadoop filesystem. From LogAnalyzer directory in terminal Execute the below commands
-````
-hdfs dfs -rm -r log // Removes the existing log files
-hdfs dfs -rm -r output // Removes existing output directory
-hadoop fs -mkdir -p log // Creates log difrectory in the root folder
-hdfs dfs -put log/LogFileGenerator.2022-09-*.log log // copies log files from local to the hdfs file system
-````
-
-5) Run Map-Reduce Tasks
-
-   hadoop jar </nameOfJarFile/>
-
-   nameOfJarFile : LogFileGenerator-assembly-0.1.jar
+Test Files can be found under the directory /src/test/scala/LogAnalyzerApiTestCases
 
 ````
-hadoop jar target/scala-3.2.0/LogFileGenerator-assembly-0.1.jar
+sbt clean compile test
 ````
+Output of the test runner:
+![](/home/vvs/projects/LogAnalyzer-grpc-rest-api/images/Image_8.png)
 
-6) To view the output use the following commands
+### Project Implementation Details
 
-   hdfs dfs -get </OutputDirectory/> </outputPath/>
+Cloud Architecture diagram of the deployment of this project:
+   ![](/home/vvs/projects/LogAnalyzer-grpc-rest-api/images/LogAnalyzerDeployment.png)
 
-   OutputPath : The path to copy the output
+### Functionality of Periodic Updates of S3 `LogFileGenerator.log` file via EC2 instance 
+   Code to the LogFileGenerator is in this repo: https://github.com/SeshaPhaniVV/LogFileGenerator
+   The LogFileGenerator written in scala runs periodically via cron job in EC2 instance and updates the S3 file.
+   Functionality:
+   1. LogFileGenerator creates a log file of 100 records(customizable) and creates a file in log/LogFileGenerator.log
+   2. For every cron job run the changes are **appended** to the same LogFileGenerator.log file.
+   3. We created a jar file using `sbt clean compile assembly` from the LogFileGenerator project
+   4. The generated jar file is `LogFileGenerator-assembly-1.jar`. Uploaded this jar file into EC2 instance via sftp. 
+      `sftp -i <pem_key>.pem ec2-user@<ec2-ip>.compute-1.amazonaws.com` and `put LogFileGenerator-assembly-1.jar`
+   5. This jar file depends on external jar files hence we have uploaded the external jar files as well.  
+   6. Then we created a shell script that does execute the jar files generates logs and uploads it into S3. This shell script will be periodically executed by cron job. 
+   7. ![](images/Image_3.png)
+   8. Thus `LogFileGenerator.log` S3 file is updated periodically via cron from EC2 instance. 
+   ![](/home/vvs/projects/LogAnalyzer-grpc-rest-api/images/Image_2.png)
 
-``
-hdfs dfs -get output logAnalyzerOutput // copies the output into your local
-``
+### Functionality of Lambda Function and API Gateway
+   **Lambda Function**:
+      Lambda Function written in python accesses the S3 LogGenerator.log File and performs the binary search over those logs. 
+      Given the time, date, delta and pattern it gets all the logs in the given timeframe and which matches the logs.
+      Code is available in [](utils/LambdaLogsAnalyzer.py)
+   **Api Gateway**:
+      API Gateway acts as a trigger for the execution of Lambda Function.
+      ![](/home/vvs/projects/LogAnalyzer-grpc-rest-api/images/Image_4.png)
 
-Now output is copied to logAnalyzerOutput from hdfs output directory
+   Postman Requests for the API Gateway are below:
+      ![](/home/vvs/projects/LogAnalyzer-grpc-rest-api/images/Image_5.png)
+      ![](/home/vvs/projects/LogAnalyzer-grpc-rest-api/images/Image_6.png)
 
-7) Generating .csv output file
+### gRPC Implementation
+src/main/protobuf/LogAnalyzerService.proto contains the structure for a protobuf to be used for gRPC request.
 
-   7.1) Move to output path in which the output is copied and ls to see the output of each task
+ScalaPB package will use the .proto file to create the stubs which can be used to create gRPC Client/Server and facilitate the interaction between them. Files will be created in /target/scala folder.
 
-              cd logAnalyzerOutput
+Execution of gRPC server and client and explained above under Running the project section. Please refer that.
 
-   7.2) To generate .csv output file
+Output of the data is below:
+![](/home/vvs/projects/LogAnalyzer-grpc-rest-api/images/Image_7.png)
 
-   ````
-   hadoop fs -cat output/task1/part-r-00000 > task1/Task1.csv  
-   hadoop fs -cat output/task2/part-r-00000 > task2/Task2.csv  
-   hadoop fs -cat output/task3/part-r-00000 > task3/Task3.csv  
-   hadoop fs -cat output/task4/part-r-00000 > task4/Task4.csv
-   ````
+### RestAPI Implementation
+Used Apache HTTP to make API calls. Implemented two main class `AnalyzeGetRestObj` and `AnalyzePostRestObj` to make Get and Post requests to the API Gateway.
 
-Now, logAnalyzerOutput will have all the output files in both normal and .csv format
+Execution of RestApi is explained above under Running the project section. Please refer that.
 
+Output for Get Request:
+![](/home/vvs/projects/LogAnalyzer-grpc-rest-api/images/Image_9.png)
 
-### File Structure
+Output for Post Request
+![](/home/vvs/projects/LogAnalyzer-grpc-rest-api/images/Image_10.png)
 
-1) Input files(LogFiles) : /src/main/resources/LogFileGenerator.2022-09-*.log
-2) Application Configuration : /src/main/resources/application.conf
-3) Tasks - /src/main/scala/LogAnalyzerTasks
-
-   3.1) Task1 - /src/main/scala/LogAnalyzerTasks/Task1
-
-   3.2) Task2 - /src/main/scala/LogAnalyzerTasks/Task2
-
-   3.3) Task3 - /src/main/scala/LogAnalyzerTasks/Task3
-
-   3.4) Task4 - /src/main/scala/LogAnalyzerTasks/Task4
-
-   3.5) LogAnalyzer - /src/main/scala/LogAnalyzer : This is the main map reduce class that runs all tasks
-
-4) LogAnalyzerTest - /src/test/scala/LogAnalyzerTests/LogAnalyzerTest
-5) Jar File - /target/scala-3.2.0/LogFileGenerator-assembly-0.1.jar : Generated Jar file
-
-### Map Reduce Task Details
-
-This project solves total of 4 tasks. They are explained below:
-
-**Mapper:** Mapper maps input key/value pairs to a set of intermediate key/value pairs.
-
-Maps are the individual tasks that transform input records into intermediate records. The transformed intermediate records do not need to be of the same type as the input records. A given input pair may map to zero or many output pairs.
-
-**Combiner:** Before the shuffle/sort phase, the Combiner optimizes all intermediate outputs using local aggregation. Combiners' main purpose is to reduce bandwidth by reducing the number of key/value pairs that must be shuffled across the network and delivered as input to the Reducer.
-
-**Partitioner:** Partitioner controls the partitioning of the keys of the intermediate map output in Hadoop. To determine partition, the hash function is employed. Each map output is partitioned based on the key-value pair. Each partition (inside each mapper) contains records with the same key value, and each partition is subsequently forwarded to a Reducer. Partition phase takes place in between mapper and reducer.
-The Hash Partitioner (Default Partitioner) computes a hash value for the key and assigns the partition based on it.
-
-**Reducer:** In Hadoop MapReduce, a reducer condenses a set of intermediate values that share a key into a smaller set. Reducer takes a set of intermediate key-value pairs produced by the mapper as input in the MapReduce job execution flow. Reducer then aggregates, filters, and combines key-value pairs, which necessitates extensive processing.
-
-Firstly, the regex pattern is checked across the log entry for all four tasks. If it succeeds, it moves on to the job computation.
-Note : regex pattern is mentioned in the application.conf
-
-**1) Task 1:** To find the count of generated log messages with injected regex pattern for each message type in a predefined time interval.
-```
-A predefined time interval is mentioned in the application.conf. Using this start and end time, the log messages with that injected regex pattern for every log message tag is counted.(predefined time interval - startTime and endTime are configured in `application.conf`)
-Task1Mapper: (Key, Value) (key -> logMessageTag - [ERRO/INFO/WARN/DEBUG]), (value -> 1)
-Task1Reducer : (Key, Value) (key -> logMessageTag - [ERRO/INFO/WARN/DEBUG]) , (value -> sum of the logMessage count)
-```
-
-**2) Task 2:** To display the time intervals sorted in the descending order that contained most log messages of the type ERROR with injected regex pattern string instances.
-```
-Every one hour is chosen as the time interval here. So, for every hour the ERROR tag injected regex pattern log messages is counted and displayed in descending order based on the count.
-Task2 has two mapper and reducer. The first mapper and reducer provides the aggregated count of log message. The second mapper and reducer is used for sorting. Task2Reducer1 output is passed to Task2Mapper2 and Task2Mapper2 sends the (key - count of log messages * -1,value - the time) to Task2reducer2 where the sorting is done based on the key.
-Task2Mapper1: (Key, Value) (key -> Hour - [1..24]), (value -> 1)
-Task2Reducer1 : (Key, Value) (key -> Hour - [1..24]) , (value -> sum of the Error tag logMessage count)
-Task2Mapper2: (Key, Value) (key -> sum of the Error tag logMessage count * -1 ), (value -> hour [1..24])
-In Task2Reducer2, the sorted is done based on the key value sent by the Task2Mapper2
-Task2Reducer2 : (Key, Value) (key -> Hour - [1..24]) , (value -> sum of the Error tag logMessage count)
-```
-
-**3) Task 3:** To find the count of generated log messages for each message type.
-```
-The log messages for every log message tag is counted
-Task3Mapper: (Key, Value) (key -> logMessageTag - [ERRO/INFO/WARN/DEBUG]), (value -> 1)
-Task3Reducer : (Key, Value) (key -> logMessageTag - [ERRO/INFO/WARN/DEBUG]) , (value -> sum of the logMessage count)
-```
-
-**4) Task 4:** To produce the number of characters in each log message for each log message type that contain the highest number of characters in the detected instances of the designated regex pattern.
-```
-The max length of every injected regex pattern log message for every log message is displayed
-Task4Mapper: (Key, Value) (key -> logMessageTag - [ERRO/INFO/WARN/DEBUG]), (value -> logMessageLength)
-Task4Reducer : (Key, Value) (key -> logMessageTag - [ERRO/INFO/WARN/DEBUG]) , (value -> max of the logMessageLength)
-```
-### Output
-The output of every task can be located under output folder
-```
-task1/task2/task3/task4: Final output for each task is stored in the individual folders
-task2Intermediate : This is the intermediate output of task2 before sorting.
-```
+Please contact me in case of any queries: `phani.vakicherla@gmail.com`
