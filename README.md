@@ -55,7 +55,7 @@ sbt clean compile
 sbt run
 ```
 5) Once the `run` command is executed in the terminal, below output should be visible. 
-![](/home/vvs/projects/LogAnalyzer-grpc-rest-api/images/Image_1.png)
+![](images/Image_1.png)
 
 5) The project contains two API implementations.
    1. gRPC:
@@ -74,12 +74,12 @@ Test Files can be found under the directory /src/test/scala/LogAnalyzerApiTestCa
 sbt clean compile test
 ````
 Output of the test runner:
-![](/home/vvs/projects/LogAnalyzer-grpc-rest-api/images/Image_8.png)
+![](images/Image_8.png)
 
 ### Project Implementation Details
 
 Cloud Architecture diagram of the deployment of this project:
-   ![](/home/vvs/projects/LogAnalyzer-grpc-rest-api/images/LogAnalyzerDeployment.png)
+   ![](images/LogAnalyzerDeployment.png)
 
 ### Functionality of Periodic Updates of S3 `LogFileGenerator.log` file via EC2 instance 
    Code to the LogFileGenerator is in this repo: https://github.com/SeshaPhaniVV/LogFileGenerator
@@ -94,30 +94,31 @@ Cloud Architecture diagram of the deployment of this project:
    6. Then we created a shell script that does execute the jar files generates logs and uploads it into S3. This shell script will be periodically executed by cron job. 
    7. ![](images/Image_3.png)
    8. Thus `LogFileGenerator.log` S3 file is updated periodically via cron from EC2 instance. 
-   ![](/home/vvs/projects/LogAnalyzer-grpc-rest-api/images/Image_2.png)
+   ![](images/Image_2.png)
 
 ### Functionality of Lambda Function and API Gateway
    **Lambda Function**:
       Lambda Function written in python accesses the S3 LogGenerator.log File and performs the binary search over those logs. 
       Given the time, date, delta and pattern it gets all the logs in the given timeframe and which matches the logs.
-      Code is available in [](utils/LambdaLogsAnalyzer.py)
+      Code is available in [utils/LambdaLogsAnalyzer.py](utils/LambdaLogsAnalyzer.py)
+
    **Api Gateway**:
       API Gateway acts as a trigger for the execution of Lambda Function.
-      ![](/home/vvs/projects/LogAnalyzer-grpc-rest-api/images/Image_4.png)
+      ![](images/Image_4.png)
 
    Postman Requests for the API Gateway are below:
-      ![](/home/vvs/projects/LogAnalyzer-grpc-rest-api/images/Image_5.png)
-      ![](/home/vvs/projects/LogAnalyzer-grpc-rest-api/images/Image_6.png)
+      ![](images/Image_5.png)
+      ![](images/Image_6.png)
 
 ### gRPC Implementation
-src/main/protobuf/LogAnalyzerService.proto contains the structure for a protobuf to be used for gRPC request.
+[LogAnalyzerService.proto](src/main/protobuf/LogAnalyzerService.proto) contains the structure for a protobuf to be used for gRPC request.
 
 ScalaPB package will use the .proto file to create the stubs which can be used to create gRPC Client/Server and facilitate the interaction between them. Files will be created in /target/scala folder.
 
 Execution of gRPC server and client and explained above under Running the project section. Please refer that.
 
 Output of the data is below:
-![](/home/vvs/projects/LogAnalyzer-grpc-rest-api/images/Image_7.png)
+![](images/Image_7.png)
 
 ### RestAPI Implementation
 Used Apache HTTP to make API calls. Implemented two main class `AnalyzeGetRestObj` and `AnalyzePostRestObj` to make Get and Post requests to the API Gateway.
@@ -125,9 +126,9 @@ Used Apache HTTP to make API calls. Implemented two main class `AnalyzeGetRestOb
 Execution of RestApi is explained above under Running the project section. Please refer that.
 
 Output for Get Request:
-![](/home/vvs/projects/LogAnalyzer-grpc-rest-api/images/Image_9.png)
+![](images/Image_9.png)
 
 Output for Post Request
-![](/home/vvs/projects/LogAnalyzer-grpc-rest-api/images/Image_10.png)
+![](images/Image_10.png)
 
 Please contact me in case of any queries: `phani.vakicherla@gmail.com`
