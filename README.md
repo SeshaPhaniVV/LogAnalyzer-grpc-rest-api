@@ -92,7 +92,7 @@ Cloud Architecture diagram of the deployment of this project:
       `sftp -i <pem_key>.pem ec2-user@<ec2-ip>.compute-1.amazonaws.com` and `put LogFileGenerator-assembly-1.jar`
    5. This jar file depends on external jar files hence we have uploaded the external jar files as well.  
    6. Then we created a shell script that does execute the jar files generates logs and uploads it into S3. This shell script will be periodically executed by cron job. 
-   7. ![](images/Image_3.png)
+   7. ![](images/Image_3.png)[LogsS3UpdateScript.sh](utils/LogsS3UpdateScript.sh)
    8. Thus `LogFileGenerator.log` S3 file is updated periodically via cron from EC2 instance. 
    ![](images/Image_2.png)
 
