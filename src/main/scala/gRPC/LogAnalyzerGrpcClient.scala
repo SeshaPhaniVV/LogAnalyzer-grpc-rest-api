@@ -28,7 +28,9 @@ class LogAnalyzerGrpcClient(host: String, port: Int) {
 
   def shutdown(): Unit = channel.shutdown().awaitTermination(5, TimeUnit.SECONDS)
 
-  /** @param time:
+  /** Client's function to send request to server and await the response.
+    *
+    * @param time:
     *   Time
     * @param date:
     *   Date
@@ -37,12 +39,14 @@ class LogAnalyzerGrpcClient(host: String, port: Int) {
     * @param pattern:
     *   pattern to search in logs
     */
-  def search(time: String, date: String, deltaTime: String, pattern: String): Unit = {
+  def analyze(time: String, date: String, deltaTime: String, pattern: String): Unit = {
     val request = RequestBody(time, date, deltaTime, pattern)
     try {
+      // Sending request to server.
       logger.info("Send the gRPC request to the server.")
       val response = blockingStub.analyze(request)
       logger.info(s"The response received from Server: ${response.result}")
+      // logging the response received
       println(s"Response Received: $response")
     } catch {
       case e: StatusRuntimeException =>
@@ -56,6 +60,8 @@ class LogAnalyzerGrpcClient(host: String, port: Int) {
 object LogAnalyzerGrpcClient extends App {
   val logger         = CreateLogger(classOf[LogAnalyzerGrpcClient])
   val config: Config = ConfigFactory.load("application.conf")
+
+  // Loading the values from config
   val client = new LogAnalyzerGrpcClient(
     config.getString("configuration.clientHost"),
     config.getInt("configuration.clientPort")
@@ -63,13 +69,14 @@ object LogAnalyzerGrpcClient extends App {
 
   // Makes GrpcServer call
   try {
-    client.search(
+    client.analyze(
       config.getString("configuration.time"),
       config.getString("configuration.date"),
       config.getString("configuration.deltaTime"),
       config.getString("configuration.pattern")
     )
   } finally {
+    // Shutdown the Client server.
     logger.info("Shutting down the server")
     client.shutdown()
   }

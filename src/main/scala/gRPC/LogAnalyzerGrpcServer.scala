@@ -31,11 +31,13 @@ class LogAnalyzerGrpcServer(server: Server) {
   /** grpc Server Start function
     */
   def start(): Unit = {
+    // starting the server
     server.start()
     logger.info(s"Server started, listening on ${server.getPort}")
     sys.addShutdownHook {
       System.err.println("Shutting down gRPC server")
       logger.info(s"Server shutting down")
+      // stopping the server
       stop()
       System.err.println("server shut down")
     }
@@ -45,9 +47,12 @@ class LogAnalyzerGrpcServer(server: Server) {
   /** Stop the Grpc server
     */
   def stop(): Unit = {
+    // stopping the gRPC server
     server.shutdown()
   }
 
+  /** Wait till the server is shutdown manually
+    */
   def blockUntilShutdown(): Unit = {
     server.awaitTermination()
   }

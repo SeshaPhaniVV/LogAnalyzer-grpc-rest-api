@@ -34,7 +34,9 @@ class AnalyzeGrpcService(http: HttpClient) extends LogAnalyzerServiceGrpc.LogAna
   val config: Config = ConfigFactory.load("application.conf")
   val logger: Logger = CreateLogger(classOf[AnalyzeGrpcService])
 
-  /** @param request
+  /** Override the default search function defined by protobuf.
+    *
+    * @param request
     *   \- Search request object containing params to make lambda call
     * @return
     */
@@ -47,6 +49,7 @@ class AnalyzeGrpcService(http: HttpClient) extends LogAnalyzerServiceGrpc.LogAna
       s"Executing the search function for the input values -> time: $time, deltaTime = $time_duration"
     )
 
+    // Performing a Get request to AWS Lambda API Gateway by passing the values through query parameters.
     logger.info("Performing the GET request to AWS Lambda function.")
     val url    = config.getString("configuration.lambdaApiUrl")
     val newUrl = s"$url?time=$time&date=$date&time_duration=$time_duration&pattern=$pattern"
@@ -57,6 +60,8 @@ class AnalyzeGrpcService(http: HttpClient) extends LogAnalyzerServiceGrpc.LogAna
 
     val entity = response.getEntity
     val str    = EntityUtils.toString(entity, "UTF-8")
+
+    // Sending back the received response to Client
     logger.info(s"Sending back the receive response: $str")
     Future.successful(ResponseBody(str))
   }

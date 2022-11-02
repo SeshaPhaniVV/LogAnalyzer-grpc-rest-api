@@ -17,8 +17,6 @@ import org.slf4j.{Logger, LoggerFactory}
 import HelperUtils.{CreateLogger, Analyze}
 import HelperUtils.HttpClient
 
-import scala.io.StdIn
-
 /** @param http
   *   \- Http client to make requests to lambda
   */
@@ -37,7 +35,7 @@ class AnalyzeRestClient(http: HttpClient) {
 
     logger.info("Got parameters from configuratuion")
 
-    val payload = new Analyze(time, time_duration, pattern)
+    val payload = Analyze(time, time_duration, pattern)
     // Converts payload object to json format
     val payloadAsJson = new Gson().toJson(payload)
     val response      = http.post(url, payloadAsJson)
@@ -48,7 +46,7 @@ class AnalyzeRestClient(http: HttpClient) {
     logger.info(s"Response is: $str ")
   }
 
-  /** get Request to make requests to lamda
+  /** get Request to make requests to lambda
     */
   def makeGetRequest(): Unit = {
     logger.info("Started the execution of getRequest function.")
@@ -57,7 +55,9 @@ class AnalyzeRestClient(http: HttpClient) {
     val pattern       = config.getString("configuration.pattern")
     val time_duration = config.getInt("configuration.deltaTime")
     val url           = config.getString("configuration.lambdaApiUrl")
-    val newUrl        = s"$url?time=$time&date=$date&time_duration=$time_duration&pattern=$pattern"
+
+    // Updating URL with query parameters
+    val newUrl = s"$url?time=$time&date=$date&time_duration=$time_duration&pattern=$pattern"
 
     val response = http.get(newUrl)
     val entity   = response.getEntity

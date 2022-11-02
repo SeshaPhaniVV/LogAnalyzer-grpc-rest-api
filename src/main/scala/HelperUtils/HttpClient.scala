@@ -42,6 +42,8 @@ class HttpClient(logger: Logger) {
     this.logger.info(url)
     post.addHeader("Content-Type", "application/json")
     post.setEntity(new StringEntity(payload))
+
+    // HttpClient will execute post request with body and correct headers
     client.execute(post)
   }
 
@@ -54,6 +56,8 @@ class HttpClient(logger: Logger) {
     val client       = getClient
     val get: HttpGet = new HttpGet(url)
     this.logger.info(url)
+
+    // Apache HttpClient executes get Request
     client.execute(get)
   }
 }
