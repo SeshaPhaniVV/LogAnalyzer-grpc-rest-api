@@ -1,0 +1,26 @@
+syntax = "proto3";
+
+package vvakic2.uic.cs441.gRPC;
+
+/**
+Protobuf Structure for the gRPC request from the gRPC client
+The gRPC client function will make a single request to the server and receive a single response back.
+ */
+
+// Defines the service with the RPC function.
+service LogAnalyzerService {
+  rpc Analyze(RequestBody) returns (ResponseBody) {}
+}
+
+// The request will be sent in following format.
+message RequestBody {
+  string time = 1;
+  string date = 2;
+  string deltaTime = 3;
+  string pattern = 4;
+}
+
+// The response will be received in the following format.
+message ResponseBody {
+  string result = 1;
+}
