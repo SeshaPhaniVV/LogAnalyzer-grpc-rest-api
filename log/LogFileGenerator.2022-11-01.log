@@ -72,3 +72,18 @@
 19:07:28.078 [pool-45-thread-10-ScalaTest-running-SimulationTestCases] INFO  - GET request is made to: https://7t2ct7h1b7.execute-api.us-east-1.amazonaws.com/search?time=0:0:0.000&date=2022-10-30&time_duration=1&pattern=aaa 
 19:07:28.078 [pool-45-thread-10-ScalaTest-running-SimulationTestCases] INFO  - Sending back the receive response: null
 19:07:28.335 [shutdownHook1] INFO  - Server shutting down
+19:13:00.658 [shutdownHook1] INFO  - Server shutting down
+19:15:02.594 [pool-45-thread-8-ScalaTest-running-LogAnalyzerApiTestCases] INFO  - Server started, listening on 0
+19:15:02.710 [pool-45-thread-8-ScalaTest-running-LogAnalyzerApiTestCases] INFO  - Started the execution of getRequest function.
+19:15:02.716 [pool-45-thread-8-ScalaTest-running-LogAnalyzerApiTestCases] INFO  - GET request is made to: https://7t2ct7h1b7.execute-api.us-east-1.amazonaws.com/search?time=17:01:44.729&date=2022-10-30&time_duration=3&pattern=(.*) 
+19:15:02.717 [pool-45-thread-8-ScalaTest-running-LogAnalyzerApiTestCases] INFO  - Response is null
+19:15:02.763 [pool-45-thread-8-ScalaTest-running-LogAnalyzerApiTestCases] INFO  - Started execution of postRequest function
+19:15:02.764 [pool-45-thread-8-ScalaTest-running-LogAnalyzerApiTestCases] INFO  - Got parameters from configuratuion
+19:15:02.765 [pool-45-thread-8-ScalaTest-running-LogAnalyzerApiTestCases] INFO  - Post request is made to: https://7t2ct7h1b7.execute-api.us-east-1.amazonaws.com/search, With following payload: {"time":"2022-10-30 17:15:29.432","time_duration":3,"pattern":"(.*)"}
+19:15:02.766 [pool-45-thread-8-ScalaTest-running-LogAnalyzerApiTestCases] INFO  - Response is: null 
+19:15:02.778 [pool-45-thread-8-ScalaTest-running-LogAnalyzerApiTestCases] INFO  - Executing the search function for the input values -> time: 0:0:0.000, deltaTime = 1
+19:15:02.778 [pool-45-thread-8-ScalaTest-running-LogAnalyzerApiTestCases] INFO  - Performing the GET request to AWS Lambda function.
+19:15:02.779 [pool-45-thread-8-ScalaTest-running-LogAnalyzerApiTestCases] INFO  - GET request is made to: https://7t2ct7h1b7.execute-api.us-east-1.amazonaws.com/search?time=0:0:0.000&date=2022-10-30&time_duration=1&pattern=aaa 
+19:15:02.779 [pool-45-thread-8-ScalaTest-running-LogAnalyzerApiTestCases] INFO  - GET request is made to: https://7t2ct7h1b7.execute-api.us-east-1.amazonaws.com/search?time=0:0:0.000&date=2022-10-30&time_duration=1&pattern=aaa 
+19:15:02.780 [pool-45-thread-8-ScalaTest-running-LogAnalyzerApiTestCases] INFO  - Sending back the receive response: null
+19:15:03.050 [shutdownHook1] INFO  - Server shutting down

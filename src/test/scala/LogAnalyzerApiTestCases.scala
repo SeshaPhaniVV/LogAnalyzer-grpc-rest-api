@@ -26,7 +26,7 @@ import io.grpc.{ManagedChannelBuilder, Server, ServerBuilder}
 import org.apache.http.HttpEntity
 import org.slf4j.{Logger, LoggerFactory}
 
-class SimulationTestCases extends AnyFunSuite with MockitoSugar {
+class LogAnalyzerApiTestCases extends AnyFunSuite with MockitoSugar {
   test("Test to see if Search is getting initiated") {
     val request = new Analyze("0:0:0.000", 1, "aaa")
     assert(request.isInstanceOf[Analyze])
