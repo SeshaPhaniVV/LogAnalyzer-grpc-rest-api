@@ -10,7 +10,7 @@
 
 The goal of this project is to gain experience with solving a distributed computational problem using cloud computing technologies by designing and implementing a RESTful service and a lambda function that are accessed from clients using gRPC.
 
-Video Link : 
+Video Link : https://youtu.be/vow7hjhuf80
 
 The video explains how different cloud components are used to solve the log files data analyzing problem and deployed a restful API service in AWS.I also explained the steps and different components involved in deploying this solution in AWS.
 
