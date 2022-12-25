@@ -1,10 +1,8 @@
-## CS441 - Engineering Distributed Objects for Cloud Computing
 
-## HomeWork 2 - Log File Analyzer API Implementation using REST and gRPC
+## Log File Analyzer API Implementation using REST and gRPC
 
 ### Author: Venkata Sesha Phani, Vakicherla
-### Email: vvakic2@uic.edu
-### UIN: 651416734
+### Email: phani.vakicherla@gmail.com
 
 ### Introduction
 
