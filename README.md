@@ -129,4 +129,8 @@ Output for Get Request:
 Output for Post Request
 ![](images/Image_10.png)
 
+### NOTE: AWS EMR Cluster Implementation
+## [Documentation](https://github.com/SeshaPhaniVV/LogAnalyzer/blob/main/README.md)
+
+
 Please contact me in case of any queries: `phani.vakicherla@gmail.com`
